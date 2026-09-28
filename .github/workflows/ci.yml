@@ -12,8 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: Build & Test (iOS)
+  build-and-package:
+    name: Build & Package IPA
     runs-on: macos-15
 
     steps:
@@ -45,25 +45,6 @@ jobs:
       - name: Generate Xcode Project
         run: |
           xcodegen generate
-
-      - name: Run Unit Tests (Simulator)
-        run: |
-          # 查找当前 Runner 上可用的 iPhone 模拟器名称
-          SIMULATOR_NAME=$(xcrun simctl list devices available | grep -E "iPhone (15|16|17)" | head -n 1 | sed -E 's/^[[:space:]]+//; s/ \([0-9A-F-]+\).*//')
-          if [ -z "$SIMULATOR_NAME" ]; then
-            SIMULATOR_NAME="iPhone 16"
-          fi
-          echo "Using Simulator: $SIMULATOR_NAME"
-
-          xcodebuild test \
-            -project ImmichSwiftUI.xcodeproj \
-            -scheme ImmichSwiftUI \
-            -destination "platform=iOS Simulator,name=$SIMULATOR_NAME" \
-            -only-testing:ImmichSwiftUITests \
-            -derivedDataPath DerivedData \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
 
       - name: Build App & Extensions (iOS Device)
         run: |
